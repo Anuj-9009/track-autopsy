@@ -60,6 +60,7 @@ The primary inquest record for certified audio cadavers:
 * **Official Disposal Order**: Formulates the legally binding internment zone for the track's master files (e.g., *Class-IV Commercial Deadpool*, *Muzak Low-Pass Transcode Facility*).
 * **Dynamic Satirical Artist Credentials**: Automatically awards the artist an absurd, genre-specific doctorate (e.g., *Dr. Gotye, D.A.P. — Doctor of Acoustic Pathology*; *Dr. Smash Mouth, Ph.D. — Doctor of Cinema Soundtracks*; *Dr. PSY, D.V.C. — Doctor of Viral Choreography*).
 * **Archival Action Suite**:
+  * **Direct PNG Report Export**: Instant high-resolution archival snapshot download (`html-to-image`) rendering crisp 2x retina images of the active autopsy dossier or any forensic lab view (`WAVEFORM DISSECTION`, `CHAIN OF CUSTODY`, `CORONER PROTOCOLS`). Interactive buttons and screen toggles are filtered out automatically so the exported PNG looks like an authentic physical evidence document.
   * **Print Dossier**: Dedicated print styling that generates a sterile, high-contrast black-and-white physical forensic report.
   * **Share Verdict**: Formats a clinical coroner summary and copies it directly to the system clipboard.
   * **Exhume Another**: Instant reset to inspect the next deceased track.
@@ -278,7 +279,8 @@ Once the app is running in your browser:
    * View the **Active Inquest Specimen Banner** linking your active case to statutory Directive 84-M.
    * Search the **ICD-Audio Diagnostic Directory** table where your active case is pinned with a `[SPECIMEN]` badge.
    * Click **`Submit Inquest Petition`** to submit a Form IP-12 petition for suspected audio corpses.
-6. **Print or Share**:
+6. **Export, Print, or Share**:
+   * Click **`DOWNLOAD REPORT (PNG)`** in the header or action bar to save a crisp, high-resolution evidence document snapshot directly to your device (ideal for social posts and portfolio dockets).
    * Click **`PRINT DOSSIER`** in the footer bar for a clean, physical coroner printout.
    * Click **`SHARE VERDICT`** to copy a structured coroner summary directly to your clipboard.
 
