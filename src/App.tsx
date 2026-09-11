@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Settings, FolderOpen, Printer, Share2, PlusCircle, UserCheck, BadgeInfo, Activity } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Settings, FolderOpen, Printer, Share2, PlusCircle, UserCheck, BadgeInfo, Activity, Download, Loader2 } from 'lucide-react';
+import { toPng } from 'html-to-image';
 import { generateAutopsy, type AutopsyReport } from './api';
 import { generateDeterministicCase, getArtistDegree, getArtistDegreeShort } from './utils';
 import { WaveformDissection } from './components/WaveformDissection';
@@ -269,6 +270,85 @@ function App() {
     }
   };
 
+  const [isDownloadingPng, setIsDownloadingPng] = useState(false);
+  const dossierRef = useRef<HTMLDivElement>(null);
+  const waveformRef = useRef<HTMLDivElement>(null);
+  const custodyRef = useRef<HTMLDivElement>(null);
+  const protocolsRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPng = async () => {
+    if (!currentCase) return;
+
+    let targetEl: HTMLElement | null = null;
+    let reportType = "DOSSIER";
+
+    if (activeTab === 'registry') {
+      targetEl = dossierRef.current;
+      reportType = "CASE_DOSSIER";
+    } else if (activeTab === 'waveform') {
+      targetEl = waveformRef.current;
+      reportType = "WAVEFORM_DISSECTION";
+    } else if (activeTab === 'chain') {
+      targetEl = custodyRef.current;
+      reportType = "CHAIN_OF_CUSTODY";
+    } else if (activeTab === 'protocols') {
+      targetEl = protocolsRef.current;
+      reportType = "CORONER_PROTOCOLS";
+    }
+
+    if (!targetEl) return;
+
+    setIsDownloadingPng(true);
+    showToast("PREPARING ARCHIVAL PNG SNAPSHOT...");
+
+    try {
+      await new Promise((r) => setTimeout(r, 120));
+
+      const dataUrl = await toPng(targetEl, {
+        quality: 0.98,
+        pixelRatio: 2,
+        backgroundColor: '#ece8df',
+        cacheBust: true,
+        filter: (node: HTMLElement) => {
+          if (node.classList && node.classList.contains('no-export')) {
+            return false;
+          }
+          return true;
+        },
+      });
+
+      const sanitizedArtist = currentCase.artist.replace(/[^a-zA-Z0-9_-]/g, '_').toUpperCase();
+      const sanitizedTitle = currentCase.title.replace(/[^a-zA-Z0-9_-]/g, '_').toUpperCase();
+      const filename = `TRACK_AUTOPSY_${sanitizedArtist}_${sanitizedTitle}_${reportType}.png`;
+
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = dataUrl;
+      link.click();
+      showToast("REPORT DOWNLOADED AS PNG");
+    } catch (err) {
+      console.error("Failed to export high-res PNG, falling back:", err);
+      try {
+        const fallbackDataUrl = await toPng(targetEl, {
+          quality: 0.9,
+          backgroundColor: '#ece8df',
+          skipFonts: true,
+          filter: (node: HTMLElement) => !node.classList?.contains('no-export'),
+        });
+        const link = document.createElement('a');
+        link.download = `TRACK_AUTOPSY_REPORT.png`;
+        link.href = fallbackDataUrl;
+        link.click();
+        showToast("REPORT DOWNLOADED AS PNG");
+      } catch (fallbackErr) {
+        console.error("Fallback PNG export failed:", fallbackErr);
+        showToast("PNG EXPORT FAILED - PLEASE RETRY");
+      }
+    } finally {
+      setIsDownloadingPng(false);
+    }
+  };
+
   return (
     <div className="bg-secondary/20 text-on-surface font-body-md text-body-md min-h-screen selection:bg-primary-container selection:text-on-primary">
       <header className="fixed top-0 w-full z-50 bg-surface-container-high/95 backdrop-blur-sm shadow-[0_3px_0px_rgba(28,26,23,0.15)]">
@@ -333,6 +413,28 @@ function App() {
           </nav>
 
           <div className="flex items-center gap-space-md">
+            {currentCase && (
+              <button
+                type="button"
+                onClick={handleDownloadPng}
+                disabled={isDownloadingPng}
+                title="Download Current Report as PNG"
+                className="no-export flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 bg-primary text-on-primary hover:bg-primary/90 font-label-sm text-label-sm uppercase tracking-wider shadow-sm transition-all cursor-pointer font-bold disabled:opacity-50"
+              >
+                {isDownloadingPng ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    <span className="hidden sm:inline">EXPORTING...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download size={14} />
+                    <span className="hidden sm:inline">DOWNLOAD REPORT (PNG)</span>
+                    <span className="sm:hidden">PNG</span>
+                  </>
+                )}
+              </button>
+            )}
             <div className="hidden sm:flex flex-col items-end text-right max-w-[240px]">
               <span className="font-label-sm text-label-sm uppercase text-on-surface-variant">EXAMINER ON DUTY</span>
               <span className="font-body-sm text-body-sm font-bold text-on-surface truncate w-full text-right" title={currentCase ? `Dr. ${currentCase.artist}` : "DR. H. VANE"}>
@@ -398,26 +500,32 @@ function App() {
 
             {/* TAB VIEW: WAVEFORM DISSECTION */}
             {activeTab === 'waveform' && currentCase && (
-              <WaveformDissection
-                currentCase={currentCase}
-                onBackToRegistry={() => setActiveTab('registry')}
-              />
+              <div ref={waveformRef} className="w-full flex flex-col items-center">
+                <WaveformDissection
+                  currentCase={currentCase}
+                  onBackToRegistry={() => setActiveTab('registry')}
+                />
+              </div>
             )}
 
             {/* TAB VIEW: CHAIN OF CUSTODY */}
             {activeTab === 'chain' && currentCase && (
-              <ChainOfCustody
-                currentCase={currentCase}
-                onBackToRegistry={() => setActiveTab('registry')}
-              />
+              <div ref={custodyRef} className="w-full flex flex-col items-center">
+                <ChainOfCustody
+                  currentCase={currentCase}
+                  onBackToRegistry={() => setActiveTab('registry')}
+                />
+              </div>
             )}
 
             {/* TAB VIEW: CORONER PROTOCOLS */}
             {activeTab === 'protocols' && currentCase && (
-              <CoronerProtocols
-                currentCase={currentCase}
-                onBackToRegistry={() => setActiveTab('registry')}
-              />
+              <div ref={protocolsRef} className="w-full flex flex-col items-center">
+                <CoronerProtocols
+                  currentCase={currentCase}
+                  onBackToRegistry={() => setActiveTab('registry')}
+                />
+              </div>
             )}
 
             {/* TAB VIEW: CASE REGISTRY (DEFAULT) */}
@@ -535,8 +643,28 @@ function App() {
 
                 {/* DOSSIER */}
                 {currentCase && (
-                  <div className={`w-full max-w-5xl relative pb-space-xl transition-opacity duration-500 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                    <div className="flex justify-end pr-4 -mb-1">
+                  <div ref={dossierRef} className={`w-full max-w-5xl relative pb-space-xl transition-opacity duration-500 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                    <div className="flex justify-between items-center pr-4 -mb-1">
+                      <button
+                        type="button"
+                        onClick={handleDownloadPng}
+                        disabled={isDownloadingPng}
+                        className="no-export ml-2 px-3 py-1 bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-sm text-label-sm font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-[2px_-2px_0px_#735a30] transition-colors cursor-pointer disabled:opacity-50"
+                        title="Download Dossier as High-Resolution PNG"
+                      >
+                        {isDownloadingPng ? (
+                          <>
+                            <Loader2 size={13} className="animate-spin text-primary" />
+                            <span>GENERATING PNG...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Download size={13} className="text-primary" />
+                            <span>DOWNLOAD REPORT (PNG)</span>
+                          </>
+                        )}
+                      </button>
+
                       <div className="bg-surface-container-high px-space-md py-1.5 shadow-[2px_-2px_0px_#735a30] relative z-10 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-primary/70 inline-block"></span>
                         <span className="font-label-sm text-label-sm font-bold text-on-surface tracking-wider uppercase">
@@ -571,7 +699,7 @@ function App() {
                           <div className="flex gap-space-md items-start">
                             {currentCase.albumArt && (
                               <div className="w-24 h-24 shrink-0 shadow-[2px_2px_0px_#1d1b18] border-2 border-surface-variant p-1 bg-surface-container-lowest rotate-[-2deg]">
-                                <img src={currentCase.albumArt} alt="Album Art" className="w-full h-full object-cover grayscale contrast-125" />
+                                <img src={currentCase.albumArt} alt="Album Art" crossOrigin="anonymous" className="w-full h-full object-cover grayscale contrast-125" />
                               </div>
                             )}
                             <div className="space-y-1 max-w-xl">
@@ -778,7 +906,26 @@ function App() {
                             <UserCheck size={16} className="text-secondary" />
                             <span className="underline decoration-dotted">CHAIN OF CUSTODY VERIFIED BY REEL AUDIT LAB ↗</span>
                           </button>
-                          <div className="flex flex-wrap items-center gap-2">
+                          <div className="no-export flex flex-wrap items-center gap-2">
+                            <button 
+                              type="button" 
+                              onClick={handleDownloadPng} 
+                              disabled={isDownloadingPng}
+                              className="px-space-sm py-1 bg-primary text-on-primary hover:bg-primary/90 font-label-sm text-label-sm uppercase tracking-wider shadow-sm flex items-center gap-1.5 cursor-pointer transition-colors font-bold disabled:opacity-50"
+                              title="Download full archival post-mortem report as high-resolution PNG"
+                            >
+                              {isDownloadingPng ? (
+                                <>
+                                  <Loader2 size={15} className="animate-spin" />
+                                  <span>GENERATING PNG...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Download size={15} />
+                                  <span>DOWNLOAD REPORT (PNG)</span>
+                                </>
+                              )}
+                            </button>
                             <button type="button" onClick={() => window.print()} className="px-space-sm py-1 bg-surface-variant hover:bg-surface-container font-label-sm text-label-sm text-on-surface uppercase tracking-wider shadow-sm flex items-center gap-1 cursor-pointer transition-colors">
                               <Printer size={15} />
                               <span>PRINT DOSSIER</span>
