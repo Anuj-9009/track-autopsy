@@ -323,6 +323,8 @@ npm run preview
 
 ```
 track-autopsy/
+├── assets/                     # Animated SVG media widgets & badges
+│   └── footer.svg              # Animated vinyl player widget (Frank Ocean - Pink Matter)
 ├── public/                     # Static assets and favicon
 ├── src/
 │   ├── components/
@@ -352,10 +354,8 @@ Released under the **MIT License** — see [LICENSE](LICENSE) for terms.
 ---
 
 <div align="center" style="margin-top: 40px;">
-  <p style="font-family: 'Courier Prime', monospace; font-size: 13px; font-weight: 700; color: #8a2320; letter-spacing: 0.1em; text-transform: uppercase; margin: 0;">
-    BUREAU OF FORENSIC ACOUSTICS // DIVISION OF VITAL FREQUENCIES
-  </p>
-  <p style="font-family: 'Space Mono', monospace; font-size: 12px; color: #735a30; margin-top: 4px;">
-    built by ANUJ with ❤️ to the cold acoustic remains of early-2010s radio anthems
-  </p>
+  <img src="assets/footer.svg" width="100%" alt="footer">
 </div>
+<p style="font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; color: #ff4d8d; margin: 10px 0 0 0; text-align: center;">
+  built by ANUJ with ❤️ to the hypnotic, cosmic frequencies of frank ocean's 'pink matter'
+</p>
