@@ -147,54 +147,177 @@ We rejected contemporary corporate SaaS templates in favor of a curated, immersi
 
 ---
 
-## 🚀 Quick Start Guide
+## 🚀 How to Run & Operate Track Autopsy
 
-### Prerequisites
-* **Node.js** (v18 or higher)
-* **npm** or **pnpm**
+Follow these step-by-step instructions to get the application running locally in under 2 minutes.
 
-### 💻 Installation & Setup
+---
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Anuj-9009/track-autopsy.git
-   cd track-autopsy
-   ```
+### 📋 Prerequisites
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+Before starting, ensure your system has:
+* **Node.js** (version `18.0.0` or higher) — check with:
+  ```bash
+  node -v
+  ```
+* **npm** (version `9.0.0` or higher) or **pnpm** / **yarn** — check with:
+  ```bash
+  npm -v
+  ```
+* A modern web browser (Google Chrome, Brave, Safari, Firefox, Edge).
 
-3. **Configure Environment Variables (Optional):**
-   Copy the example environment template:
+---
+
+### 📥 1. Clone & Install Dependencies
+
+Open your terminal and clone the repository:
+
+```bash
+# Clone the repository
+git clone https://github.com/Anuj-9009/track-autopsy.git
+
+# Navigate into the project folder
+cd track-autopsy
+
+# Install all required dependencies
+npm install
+```
+
+---
+
+### ⚙️ 2. Configure Credentials (3 Flexible Modes)
+
+You can run Track Autopsy in whichever mode best fits your setup:
+
+#### 🟢 Mode A: Zero-Config / Offline Mode (No Keys Required)
+> **Fastest way to test!** If you do not provide any API keys, the application automatically activates its **Deterministic Procedural Generator**. It algorithmically computes 100% complete, authentic forensic dossiers, frequency analyses, and chain-of-custody ledgers offline without making external network calls.
+
+#### 🟡 Mode B: In-App UI Configuration (Recommended for Quick Testing)
+1. Start the app with `npm run dev` and open `http://localhost:5173` in your browser.
+2. In the top navigation bar, click the **`Config`** button (gear icon ⚙️).
+3. Paste your **Google Gemini API Key** and/or **Spotify Client ID & Secret** directly into the modal and click **Save**.
+4. Keys are saved locally into your browser's `localStorage` and are **never** committed to version control.
+
+#### 🔵 Mode C: Local `.env.local` File (For Developers)
+1. Copy the example environment configuration template:
    ```bash
    cp .env.example .env.local
    ```
-   Edit `.env.local` with your credentials:
+2. Open `.env.local` in your code editor and fill in your keys:
    ```env
-   # Spotify API (https://developer.spotify.com/dashboard)
+   # Spotify Developer API Credentials (https://developer.spotify.com/dashboard)
    VITE_SPOTIFY_CLIENT_ID=your_spotify_client_id_here
    VITE_SPOTIFY_CLIENT_SECRET=your_spotify_client_secret_here
 
-   # Google Gemini API (https://aistudio.google.com/)
+   # Google Gemini API Key (https://aistudio.google.com/)
    VITE_GEMINI_API_KEY=your_gemini_api_key_here
    ```
-   *(Note: If left blank, the app runs automatically with the built-in deterministic procedural generator or user-provided keys via the in-app Config modal).*
-
-4. **Start Development Server:**
-   ```bash
-   npm run dev
-   ```
-   Open your browser at `http://localhost:5173`.
-
-5. **Build for Production:**
-   ```bash
-   npm run build
-   ```
-   The production-ready output will be bundled in the `dist/` directory.
+   *(Note: `.env.local` is strictly excluded by `.gitignore` so your keys stay private).*
 
 ---
+
+### 🔑 How to Obtain Free API Keys (Under 2 Minutes)
+
+* **Google Gemini API Key (100% Free)**:
+  1. Visit **[Google AI Studio](https://aistudio.google.com/)**.
+  2. Sign in with your Google account.
+  3. Click **"Get API key"** $\rightarrow$ **"Create API key"**.
+  4. Copy your key (starts with `AIzaSy...`).
+
+* **Spotify Developer Credentials (100% Free)**:
+  1. Visit the **[Spotify Developer Dashboard](https://developer.spotify.com/dashboard)** and log in.
+  2. Click **"Create App"**.
+  3. Enter App Name: `Track Autopsy`, Description: `Music Coroner`, Redirect URI: `http://localhost:5173`.
+  4. Navigate to your app's **Settings** tab to copy your **Client ID** and **Client Secret**.
+
+---
+
+### ▶️ 3. Start the Development Server
+
+Launch the Vite local development server:
+
+```bash
+npm run dev
+```
+
+Once running, your terminal will display:
+```
+  VITE v8.3.0  ready in 180 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+```
+
+Open **`http://localhost:5173`** in your web browser.
+
+---
+
+### 🩺 4. How to Use the Forensic Interface
+
+Once the app is running in your browser:
+
+1. **Conduct an Autopsy**:
+   * Click one of the historical archive presets (**Gotye**, **Smash Mouth**, **The Chainsmokers**, **PSY**) for instant retrieval.
+   * Or enter **any** track title and artist into the dossier blotter (e.g. Track: `Hey Ya!`, Artist: `Outkast`) and click **`EXAMINE SPECIMEN`**.
+2. **Review the Cold Case Dossier (`Case Registry`)**:
+   * Inspect the official **Chart Biopsy** showing real Billboard Hot 100 historical peak and weeks at #1.
+   * Read the **Transcription of Fatal Earworm Hook** on typewriter index card `00-A`.
+   * Check the **Official Disposal Order** assigning the track to its mandated internment zone.
+   * Verify the legal attestation signed under the artist's satirical medical degree (e.g., *Dr. Gotye, D.A.P.*).
+3. **Inspect the Frequency Autopsy (`Waveform Dissection`)**:
+   * Click **`Waveform Dissection`** in the header.
+   * Toggle the real-time CRT oscilloscope (`PLAY` / `PAUSE`) and switch sweep speeds (`0.5X`, `1.0X`, `2.0X`).
+   * Review the 4-band acoustic spectrum (Sub-Bass, Low-Mids, Presence, High Air) mapping to actual song instrumentation.
+4. **Audit Seized Evidence (`Chain of Custody`)**:
+   * Click **`Chain of Custody`** in the header.
+   * Examine the 4-tier transfer ledger and vintage evidence bag cards (Master Tape, Radio Promo CD-R, Warped Vinyl 45).
+   * Click the red **`AFFIX REGULATORY STAMP`** button to mechanically certify the Section 9 Custodian Oath of Isolation.
+5. **Consult Statutory Law (`Coroner Protocols`)**:
+   * Click **`Coroner Protocols`** in the header.
+   * View the **Active Inquest Specimen Banner** linking your active case to statutory Directive 84-M.
+   * Search the **ICD-Audio Diagnostic Directory** table where your active case is pinned with a `[SPECIMEN]` badge.
+   * Click **`Submit Inquest Petition`** to submit a Form IP-12 petition for suspected audio corpses.
+6. **Print or Share**:
+   * Click **`PRINT DOSSIER`** in the footer bar for a clean, physical coroner printout.
+   * Click **`SHARE VERDICT`** to copy a structured coroner summary directly to your clipboard.
+
+---
+
+### 📦 5. Building for Production
+
+To create an optimized, minified production build:
+
+```bash
+npm run build
+```
+
+To preview the production bundle locally:
+
+```bash
+npm run preview
+```
+
+---
+
+### 🛠️ Troubleshooting & FAQ
+
+* **Port 5173 is already in use?**  
+  Run Vite on a custom port:
+  ```bash
+  npm run dev -- --port 3000
+  ```
+
+* **Getting an API error from Gemini?**  
+  Ensure your API key is valid in `.env.local` or via the in-app **Config** modal. If no key is set or the model quota is exceeded, Track Autopsy automatically fails over to the internal mathematical generator with zero downtime.
+
+* **TypeScript or CSS build errors?**  
+  Clear the Vite cache and reinstall dependencies:
+  ```bash
+  rm -rf node_modules dist
+  npm install
+  npm run build
+  ```
 
 ## 📁 Repository File Structure
 
