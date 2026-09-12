@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { AutopsyReport } from '../api';
 import { getArtistDegree, generateHash } from '../utils';
+import { PhosphorOscilloscope } from './PhosphorOscilloscope';
 
 interface WaveformDissectionProps {
   currentCase: AutopsyReport;
@@ -12,6 +13,7 @@ export const WaveformDissection: React.FC<WaveformDissectionProps> = ({ currentC
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const oscRef = useRef<OscillatorNode | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
 
   const hash = generateHash(currentCase.title + currentCase.artist);
   const degree = getArtistDegree(currentCase.artist);
@@ -32,6 +34,7 @@ export const WaveformDissection: React.FC<WaveformDissectionProps> = ({ currentC
         oscRef.current.disconnect();
         oscRef.current = null;
       }
+      analyserRef.current = null;
       setIsPlayingTone(false);
     } else {
       try {
@@ -41,16 +44,20 @@ export const WaveformDissection: React.FC<WaveformDissectionProps> = ({ currentC
 
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 512;
 
         osc.type = 'sine';
         osc.frequency.setValueAtTime(880, ctx.currentTime);
         gain.gain.setValueAtTime(0.08, ctx.currentTime);
 
         osc.connect(gain);
-        gain.connect(ctx.destination);
+        gain.connect(analyser);
+        analyser.connect(ctx.destination);
 
         osc.start();
         oscRef.current = osc;
+        analyserRef.current = analyser;
         setIsPlayingTone(true);
       } catch (err) {
         console.error("AudioContext error:", err);
@@ -216,55 +223,13 @@ export const WaveformDissection: React.FC<WaveformDissectionProps> = ({ currentC
                 <span>-48 dB (Noise Floor)</span>
               </div>
 
-              {/* Oscilloscope Waveform & Frequency Spike SVG Display */}
+              {/* Oscilloscope Waveform & Frequency Spike Animated Phosphor Display */}
               <div className="relative z-10 w-full h-64 sm:h-72 my-space-xs flex items-center justify-center">
-                <svg className="w-full h-full text-[#d6aa61]" fill="none" preserveAspectRatio="none" viewBox="0 0 1000 280">
-                  {/* Zero Axis */}
-                  <line stroke="#4a3e2b" strokeDasharray="4 4" strokeWidth="1" x1="0" x2="1000" y1="140" y2="140"></line>
-                  <line stroke="#7c2018" strokeDasharray="2 4" strokeWidth="1" x1="0" x2="1000" y1="50" y2="50"></line>
-                  <line stroke="#7c2018" strokeDasharray="2 4" strokeWidth="1" x1="0" x2="1000" y1="230" y2="230"></line>
-
-                  {/* Brickwall Ceiling Line */}
-                  <line stroke="#ff8f80" strokeDasharray="6 3" strokeWidth="1.5" x1="0" x2="1000" y1="28" y2="28"></line>
-                  <text fill="#ff8f80" fontFamily="'Space Mono', monospace" fontSize="10" letterSpacing="2" x="12" y="24">
-                    FATAL BRICKWALL CEILING (+0.0 dBFS)
-                  </text>
-
-                  {/* Sub-bass trace */}
-                  <path d="M0,140 C40,140 70,144 110,143 C150,142 190,145 230,142" stroke="#68563c" strokeWidth="2"></path>
-
-                  {/* Transient spikes */}
-                  <path d="M230,142 L250,90 L265,185 L280,110 L300,165 L320,80 L335,195 L350,120 L370,140" stroke="#cba878" strokeWidth="2.5"></path>
-
-                  {/* Vocal Presence Trauma Spike into Brickwall */}
-                  <path d="M370,140 L410,135 L440,70 L465,30 L490,26 L515,26 L540,26 L560,32 L580,75 L610,120 L640,135" stroke="#ff8f80" strokeLinecap="square" strokeWidth="3"></path>
-
-                  {/* Harmonic Distortion Flatline */}
-                  <path d="M640,135 L660,110 L675,155 L690,125 L710,148 L730,132 L750,144 L780,138 L810,141 L850,140 L900,140 L950,140 L1000,140" stroke="#a33c31" strokeWidth="2"></path>
-
-                  {/* Callout Flag 1: Harmonic Hook Spike */}
-                  <circle cx="320" cy="80" fill="#ffdeab" r="4"></circle>
-                  <line stroke="#e2c28f" strokeWidth="1" x1="320" x2="320" y1="80" y2="40"></line>
-                  <rect fill="#1c1914" height="16" width="160" x="240" y="24"></rect>
-                  <text fill="#ffdeab" fontFamily="'Space Mono', monospace" fontSize="9" letterSpacing="1" x="245" y="36">
-                    PRIMARY HOOK CONTUSION
-                  </text>
-
-                  {/* Callout Flag 2: Overexposure Saturation */}
-                  <circle cx="500" cy="26" fill="#ff8f80" r="4"></circle>
-                  <line stroke="#ff8f80" strokeWidth="1" x1="500" x2="500" y1="26" y2="10"></line>
-                  <rect fill="#7c2018" height="14" width="160" x="420" y="0"></rect>
-                  <text fill="#ffffff" fontFamily="'Space Mono', monospace" fontSize="9" fontWeight="bold" letterSpacing="1" x="425" y="10">
-                    CLIP SATURATION EXPOSURE
-                  </text>
-
-                  {/* Callout Flag 3: High-frequency flatline */}
-                  <circle cx="920" cy="140" fill="#8c7a5b" r="4"></circle>
-                  <rect fill="#1c1914" height="14" width="150" x="835" y="152"></rect>
-                  <text fill="#d2ba8b" fontFamily="'Space Mono', monospace" fontSize="9" letterSpacing="1" x="840" y="162">
-                    18kHz FLATLINE ASYMPTOTE
-                  </text>
-                </svg>
+                <PhosphorOscilloscope
+                  isPlayingTone={isPlayingTone}
+                  analyser={analyserRef.current}
+                  hash={hash}
+                />
               </div>
 
               {/* Isolated Fatal Hook Stem Banner */}
@@ -536,12 +501,29 @@ export const WaveformDissection: React.FC<WaveformDissectionProps> = ({ currentC
                   </h4>
                 </div>
                 <div className="flex gap-space-sm p-space-sm bg-surface-container-lowest mt-space-xs border border-outline-variant/40">
-                  <div className="w-24 h-24 shrink-0 bg-surface-dim overflow-hidden shadow-inner border border-outline-variant/40">
-                    <img
-                      className="w-full h-full object-cover"
-                      src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3oSx2Ccy7DIi8PsPul3jTLaresnyNJ6H5RUOJsMg7M7T5Soblt4dMZS7l40znY4dby6fkcttrgTCy4UeKe8fonNjKmqUcNcPfmdGlc0pvdKq0ELXDjIiqIba8D_ibQRNa8BLWaHu7MMVxLzabiBcuSqyoasPGd-SICQ02Or8jCv7MikNX1xGFTBsP2boUcS29Y-EtT8QZ83aDmewKlllMbumDrjogM1h0_Jg57PITUm3Q1jWmatIgsQ"
-                      alt="Microscopic forensic photograph of damaged audio tape"
-                    />
+                  <div className="w-24 h-24 shrink-0 bg-[#121110] overflow-hidden shadow-inner border border-outline-variant/60 relative flex items-center justify-center">
+                    <svg viewBox="0 0 100 100" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                      <rect width="100" height="100" fill="#141210"/>
+                      {/* Microscope grid */}
+                      <line x1="0" y1="50" x2="100" y2="50" stroke="#735a30" strokeWidth="0.5" strokeDasharray="2,2"/>
+                      <line x1="50" y1="0" x2="50" y2="100" stroke="#735a30" strokeWidth="0.5" strokeDasharray="2,2"/>
+                      <circle cx="50" cy="50" r="42" fill="none" stroke="#735a30" strokeWidth="0.75"/>
+                      <circle cx="50" cy="50" r="24" fill="none" stroke="#735a30" strokeWidth="0.5" strokeDasharray="1,2"/>
+                      {/* Clipped Tape Grooves */}
+                      <path d="M 8 50 Q 20 44, 32 50 T 56 50 T 80 50 T 92 50" fill="none" stroke="#554b3d" strokeWidth="1.2"/>
+                      <path d="M 8 36 L 25 36 L 25 64 L 45 64 L 45 36 L 68 36 L 68 64 L 92 64" fill="none" stroke="#8a2320" strokeWidth="2"/>
+                      <path d="M 12 36 L 22 36" stroke="#f3ede7" strokeWidth="1"/>
+                      <path d="M 48 36 L 65 36" stroke="#f3ede7" strokeWidth="1"/>
+                      {/* Magnetic particle scatter */}
+                      <circle cx="28" cy="22" r="1" fill="#d9a84e"/>
+                      <circle cx="72" cy="78" r="1.2" fill="#d9a84e"/>
+                      <circle cx="82" cy="28" r="0.8" fill="#d9a84e"/>
+                      <circle cx="38" cy="80" r="1" fill="#d9a84e"/>
+                      <circle cx="65" cy="18" r="0.7" fill="#d9a84e"/>
+                      <text x="50" y="94" fill="#a89f91" fontSize="6" fontFamily="monospace" textAnchor="middle" letterSpacing="0.5">
+                        400X // CLIPPING
+                      </text>
+                    </svg>
                   </div>
                   <div className="flex flex-col justify-between">
                     <span className="font-label-sm text-label-sm text-primary uppercase font-bold">

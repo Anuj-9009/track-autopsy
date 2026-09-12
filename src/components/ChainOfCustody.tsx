@@ -401,13 +401,24 @@ export const ChainOfCustody: React.FC<ChainOfCustodyProps> = ({ currentCase }) =
               </div>
 
               {/* Visual Media Container */}
-              <div className="relative h-44 w-full bg-surface-container-high overflow-hidden shadow-inner flex items-center justify-center border border-outline-variant/40">
-                <img
-                  className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCql9UjcZ-YUGMG6x_TnjbPR6WWoh4NSKnRzx4nV2Fe7cQBJjDL-2YveJgchHCp3XkyGyt-c2cSIaVMY5PTKzGfkR6qyqojS3Z_HfPdyW6gkbXE07DCQX_1Y95nFHFrKjbhjX-k5k0jcwIHEmDpGyNAeLf9KXMXrqv0yEbn3VVc1CH5Kj0SeGSOS9r_1i1vkoHauTD96HP85wBS2J8wIWasmeOcWqbePxG4vh5MncBlp6A6NUJBaGgA7w"
-                  alt="Vintage 2-inch audio reel in evidence box"
-                />
-                <div className="absolute bottom-2 left-2 bg-surface-container-lowest/90 px-1.5 py-0.5 font-label-sm text-label-sm text-on-surface uppercase font-bold">
+              <div className="relative h-44 w-full bg-[#181614] overflow-hidden shadow-inner flex items-center justify-center border border-outline-variant/60">
+                <svg viewBox="0 0 200 120" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="200" height="120" fill="#141210"/>
+                  <rect x="10" y="10" width="180" height="100" fill="#1f1c18" stroke="#735a30" strokeWidth="1" strokeDasharray="4,2"/>
+                  <circle cx="100" cy="60" r="46" fill="#0d0c0a" stroke="#8a7960" strokeWidth="2"/>
+                  <circle cx="100" cy="60" r="42" fill="#2b1a11" stroke="#4a2e1d" strokeWidth="1"/>
+                  <circle cx="100" cy="60" r="32" fill="#3a3733" stroke="#a89f91" strokeWidth="1.5"/>
+                  <circle cx="100" cy="44" r="7" fill="#141210" stroke="#735a30" strokeWidth="0.8"/>
+                  <circle cx="86" cy="68" r="7" fill="#141210" stroke="#735a30" strokeWidth="0.8"/>
+                  <circle cx="114" cy="68" r="7" fill="#141210" stroke="#735a30" strokeWidth="0.8"/>
+                  <circle cx="100" cy="60" r="11" fill="#141210" stroke="#8a2320" strokeWidth="1.5"/>
+                  <circle cx="100" cy="60" r="4" fill="#d9a84e"/>
+                  <path d="M 132 30 L 175 18" stroke="#d9a84e" strokeWidth="2" strokeDasharray="2,1"/>
+                  <text x="100" y="114" fill="#a89f91" fontSize="6.5" fontFamily="monospace" textAnchor="middle" letterSpacing="0.8">
+                    MASTER REEL // 2-INCH 24-TRACK
+                  </text>
+                </svg>
+                <div className="absolute bottom-2 left-2 bg-surface-container-lowest/90 px-1.5 py-0.5 font-label-sm text-label-sm text-on-surface uppercase font-bold border border-outline-variant/40">
                   REEL 24-TRK AMV-91
                 </div>
               </div>
@@ -465,13 +476,31 @@ export const ChainOfCustody: React.FC<ChainOfCustodyProps> = ({ currentCase }) =
               </div>
 
               {/* Visual Media Container */}
-              <div className="relative h-44 w-full bg-surface-container-high overflow-hidden shadow-inner flex items-center justify-center border border-outline-variant/40">
-                <img
-                  className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7AG5z76mjui_r59RPt2dHwcIEU9qA_o7iq1XzPnqD4JpdmTTKZfg3w46vQAC0KX44CB7Qd3M1ZGPH9okYLPkDUd1kH6vSBUImiqjl2icpNxB9mbt7mmNR9__avLTFsZQpqMTrdHhSu-ndBVNNIkCRezcfxtvNhrv1EQVgoZNqWunZMwCCapnxRlT80CyPt-YKSPr66iTq_nssQF2MZpWrpColKSJY7Lu-psDuJcXA2sszCynebhcAqw"
-                  alt="Clear jewel case with CD-R labeled promo"
-                />
-                <div className="absolute bottom-2 left-2 bg-surface-container-lowest/90 px-1.5 py-0.5 font-label-sm text-label-sm text-on-surface uppercase font-bold">
+              <div className="relative h-44 w-full bg-[#181614] overflow-hidden shadow-inner flex items-center justify-center border border-outline-variant/60">
+                <svg viewBox="0 0 200 120" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="200" height="120" fill="#141210"/>
+                  <rect x="25" y="10" width="150" height="100" rx="4" fill="#1d1b18" stroke="#5c5446" strokeWidth="1.5"/>
+                  <circle cx="100" cy="60" r="42" fill="#292622" stroke="#8f8370" strokeWidth="1.5"/>
+                  <path d="M 68 35 A 42 42 0 0 1 132 35 L 115 50 A 20 20 0 0 0 85 50 Z" fill="url(#cdRainbow)" opacity="0.45"/>
+                  <defs>
+                    <linearGradient id="cdRainbow" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#8a2320" />
+                      <stop offset="25%" stopColor="#d9a84e" />
+                      <stop offset="50%" stopColor="#2e7d32" />
+                      <stop offset="75%" stopColor="#1565c0" />
+                      <stop offset="100%" stopColor="#6a1b9a" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="100" cy="60" r="16" fill="#1d1b18" stroke="#735a30" strokeWidth="1"/>
+                  <circle cx="100" cy="60" r="6" fill="#141210" stroke="#a89f91" strokeWidth="1"/>
+                  <text x="100" y="44" fill="#f3ede7" fontSize="7" fontFamily="monospace" fontWeight="bold" textAnchor="middle" letterSpacing="1">
+                    STATION PROMO // NOT FOR SALE
+                  </text>
+                  <text x="100" y="114" fill="#a89f91" fontSize="6.5" fontFamily="monospace" textAnchor="middle" letterSpacing="0.8">
+                    BROADCAST COMPACT DISC
+                  </text>
+                </svg>
+                <div className="absolute bottom-2 left-2 bg-surface-container-lowest/90 px-1.5 py-0.5 font-label-sm text-label-sm text-on-surface uppercase font-bold border border-outline-variant/40">
                   RADIO STATION PROMO #9
                 </div>
               </div>
@@ -529,13 +558,26 @@ export const ChainOfCustody: React.FC<ChainOfCustodyProps> = ({ currentCase }) =
               </div>
 
               {/* Visual Media Container */}
-              <div className="relative h-44 w-full bg-surface-container-high overflow-hidden shadow-inner flex items-center justify-center border border-outline-variant/40">
-                <img
-                  className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3BQAAMmy46cjbZv_bOeMpxBnRXdEsuCau1IrJAjW1afwPXxtP2WpMjMkkBQmc3yse-i1GiUk7EznW7vw0x15jmg0T8BQ_NtHbYsn0ZGCZQ8fCVXu_0kuH8B1Oz7jVnQk6BgRHgRRqxJihUegrNs7CMKGqGuapTUNGrl4XGqRD3S9KI-LmrmVJmyX-y93YaVXuQ-A9hJMqSIzfLU7oykgSbOWK6oZq-10R7E9R3q80Wqz5C21uqfIMYw"
-                  alt="Warped 7-inch vinyl record on file folder"
-                />
-                <div className="absolute bottom-2 left-2 bg-surface-container-lowest/90 px-1.5 py-0.5 font-label-sm text-label-sm text-on-surface uppercase font-bold">
+              <div className="relative h-44 w-full bg-[#181614] overflow-hidden shadow-inner flex items-center justify-center border border-outline-variant/60">
+                <svg viewBox="0 0 200 120" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="200" height="120" fill="#141210"/>
+                  <polygon points="10,10 190,10 180,110 20,110" fill="#24211d" stroke="#544c3f" strokeWidth="1"/>
+                  <circle cx="100" cy="60" r="44" fill="#0d0c0a" stroke="#423c33" strokeWidth="2"/>
+                  <circle cx="100" cy="60" r="40" fill="none" stroke="#211e19" strokeWidth="0.8"/>
+                  <circle cx="100" cy="60" r="36" fill="none" stroke="#2b2721" strokeWidth="0.8"/>
+                  <circle cx="100" cy="60" r="32" fill="none" stroke="#211e19" strokeWidth="0.8"/>
+                  <circle cx="100" cy="60" r="28" fill="none" stroke="#2b2721" strokeWidth="0.8"/>
+                  <circle cx="100" cy="60" r="18" fill="#8a2320" stroke="#f3ede7" strokeWidth="0.8"/>
+                  <circle cx="100" cy="60" r="8" fill="#141210" stroke="#f3ede7" strokeWidth="1"/>
+                  <path d="M 94 60 L 91 60 M 106 60 L 109 60 M 100 54 L 100 51 M 100 66 L 100 69" stroke="#f3ede7" strokeWidth="1.2"/>
+                  <text x="100" y="55" fill="#f3ede7" fontSize="5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">
+                    45 RPM
+                  </text>
+                  <text x="100" y="114" fill="#a89f91" fontSize="6.5" fontFamily="monospace" textAnchor="middle" letterSpacing="0.8">
+                    WARPED 7-INCH SPECIMEN
+                  </text>
+                </svg>
+                <div className="absolute bottom-2 left-2 bg-surface-container-lowest/90 px-1.5 py-0.5 font-label-sm text-label-sm text-on-surface uppercase font-bold border border-outline-variant/40">
                   7-INCH SINGLE (45 RPM)
                 </div>
               </div>

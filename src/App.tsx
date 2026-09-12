@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Settings, FolderOpen, Printer, Share2, PlusCircle, UserCheck, BadgeInfo, Activity, Download, Loader2 } from 'lucide-react';
 import { toPng } from 'html-to-image';
 import { generateAutopsy, type AutopsyReport } from './api';
+import { convertImageUrlToBase64, fetchSpotifyTrackData } from './spotify';
 import { generateDeterministicCase, getArtistDegree, getArtistDegreeShort } from './utils';
 import { WaveformDissection } from './components/WaveformDissection';
 import { ChainOfCustody } from './components/ChainOfCustody';
@@ -29,6 +30,7 @@ const ARCHIVED_CASES: Record<string, AutopsyReport> = {
     associates: "Natasha Pincus (Director), Ashton Kutcher (Initial Viral Vector), Walk Off The Earth, Glee Cast, Suburban Target PA Systems.",
     notes: "Internal acoustic examination reveals a skeletal structure built around a dry two-bar loop of Luiz Bonfá's 'Seville' paired with an infantile nursery-rhyme xylophone motif. Tissue analysis indicates a slow build until 02:38, where Kimbra's counter-accusatory entrance triggers irreversible dynamic trauma. The patient was consumed by its own ubiquity.",
     date: "AUG 18 2013",
+    albumArt: "https://i.scdn.co/image/ab67616d0000b2738ac5768205ad97df3f4f4c0e",
     chartPeakFact: "Peaked at No. 1 on the US Billboard Hot 100 for 8 consecutive weeks in 2012; topped charts in over 26 nations; won Grammy for Record of the Year.",
     examinerDegree: "Doctor of Musical Pathology and Acoustic Forensics (D.M.P.)",
     examinerDegreeShort: "D.M.P.",
@@ -72,6 +74,7 @@ const ARCHIVED_CASES: Record<string, AutopsyReport> = {
     associates: "DreamWorks Animation SKG, Guy Fieri (Spiritual cousin), Early 2000s Mystery Men marketing teams, Neil Cicierega (Mouth Sounds), Reddit shitposters.",
     notes: "A bizarre specimen. Despite terminal overexposure at the turn of the millennium, the corpse refused decomposition. Subsequent cultural mutations transformed the subject into an immortal internet substrate. Examiner recommends containment rather than burial.",
     date: "JUL 22 2001",
+    albumArt: "https://i.scdn.co/image/ab67616d0000b2734f3bbf9631faeb8de9912a23",
     chartPeakFact: "Peaked at No. 4 on US Billboard Hot 100 (August 1999) and No. 1 on Billboard Mainstream Top 40; triple platinum certification.",
     examinerDegree: "Doctorate of Applied Memetic Virology and Post-Ska-Punk Forensic Audicology (D.A.M.V.)",
     examinerDegreeShort: "D.A.M.V.",
@@ -115,6 +118,7 @@ const ARCHIVED_CASES: Record<string, AutopsyReport> = {
     associates: "Fraternity formal planning committees, Uber drivers worldwide, Vevo lyric video animators, Dormitory hallway speakers.",
     notes: "Pathological examination confirms death by ubiquitous comfort. The recording possessed no sharp edges, allowing it to slip painlessly into commercial elevators and shopping malls until listeners simply forgot it was playing. A pristine specimen of mid-2010s trop-pop obsolescence.",
     date: "SEP 11 2017",
+    albumArt: "https://i.scdn.co/image/ab67616d0000b273495ce6da9aeb159e94eaa453",
     chartPeakFact: "Spent 12 consecutive weeks at No. 1 on Billboard Hot 100; Diamond certified in the US (10x Platinum); 32 weeks in the Top 10.",
     examinerDegree: "Doctor of Drop Cardiology and Sub-Bass Asphyxiation (D.D.C.)",
     examinerDegreeShort: "D.D.C.",
@@ -158,6 +162,7 @@ const ARCHIVED_CASES: Record<string, AutopsyReport> = {
     associates: "Scooter Braun, Ban Ki-moon, YouTube Engineering Team (who had to rewrite integer code to 64-bit), Flash mob organizers.",
     notes: "Rare case of a track that destroyed its own infrastructure. The sheer weight of 2 billion views collapsed the meme's ecological niche. Subject passed quietly after every world leader and CEO attempted the horse trot on morning television.",
     date: "JUL 01 2013",
+    albumArt: "https://i.scdn.co/image/ab67616d0000b2736cfc57e5358c5e39e79bccbd",
     chartPeakFact: "First video in YouTube history to hit 1 Billion views; peaked at No. 2 on Billboard Hot 100; topped charts in over 30 countries.",
     examinerDegree: "Doctor of Viral Choreography and Equestrian Audicology (D.V.C.)",
     examinerDegreeShort: "D.V.C.",
@@ -180,6 +185,105 @@ const ARCHIVED_CASES: Record<string, AutopsyReport> = {
       streamStat: "Over 5.2 Billion YouTube views and 850 Million Spotify streams"
     }
   }
+};
+
+interface AlbumArtCanvasProps {
+  albumArt?: string | null;
+  title: string;
+  artist?: string;
+}
+
+const AlbumArtCanvas: React.FC<AlbumArtCanvasProps> = ({ albumArt, title }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [hasImage, setHasImage] = useState(false);
+
+  useEffect(() => {
+    if (!albumArt) {
+      setHasImage(false);
+      return;
+    }
+
+    let isMounted = true;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+
+    const render = () => {
+      if (!isMounted) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const size = Math.max(img.naturalWidth || 600, img.naturalHeight || 600, 600);
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, size, size);
+        ctx.filter = 'grayscale(100%) contrast(125%)';
+        ctx.drawImage(img, 0, 0, size, size);
+        ctx.filter = 'none';
+        setHasImage(true);
+      }
+    };
+
+    img.onload = render;
+    img.onerror = () => {
+      if (!albumArt.startsWith('data:') && typeof window !== 'undefined') {
+        fetch(albumArt)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              if (isMounted && typeof reader.result === 'string') {
+                img.onload = render;
+                img.src = reader.result;
+              }
+            };
+            reader.readAsDataURL(blob);
+          })
+          .catch(() => {
+            if (isMounted) setHasImage(false);
+          });
+      } else {
+        if (isMounted) setHasImage(false);
+      }
+    };
+
+    img.src = albumArt;
+
+    return () => {
+      isMounted = false;
+    };
+  }, [albumArt]);
+
+  return (
+    <div className="w-full h-full relative flex items-center justify-center overflow-hidden bg-[#141210]">
+      <canvas
+        ref={canvasRef}
+        className={`w-full h-full object-cover ${hasImage ? 'block' : 'hidden'}`}
+      />
+      {!hasImage && (
+        <div className="w-full h-full flex flex-col items-center justify-between bg-[#141210] text-[#e8e2d5] p-1 text-center select-none">
+          <div className="w-full flex justify-between text-[6px] text-[#a89f91] font-mono leading-none">
+            <span>EVIDENCE</span>
+            <span>45 RPM</span>
+          </div>
+          <div className="w-9 h-9 rounded-full border border-[#735a30] flex items-center justify-center bg-[#1d1b18] shadow-inner relative">
+            <div className="absolute inset-1 rounded-full border border-[#383229]" />
+            <div className="w-3 h-3 rounded-full bg-[#8a2320] flex items-center justify-center">
+              <div className="w-1 h-1 rounded-full bg-[#141210]" />
+            </div>
+          </div>
+          <div className="flex flex-col items-center w-full">
+            <span className="text-[6.5px] font-mono font-bold truncate max-w-[84px] text-[#f3ede7] uppercase leading-tight">
+              {title}
+            </span>
+            <span className="text-[5.5px] text-primary uppercase font-bold tracking-wider leading-none">
+              SPECIMEN ARCHIVE
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 function App() {
@@ -207,10 +311,34 @@ function App() {
   const [activeTab, setActiveTab] = useState<'registry' | 'waveform' | 'chain' | 'protocols'>('registry');
   const [toast, setToast] = useState("");
 
+  const [albumArtDataUrl, setAlbumArtDataUrl] = useState<string | null>(null);
+
   useEffect(() => {
     // Load default case
-    setCurrentCase(generateDeterministicCase(titleInput, artistInput));
+    setCurrentCase(ARCHIVED_CASES.gotye);
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    if (currentCase?.albumArt) {
+      if (currentCase.albumArt.startsWith('data:')) {
+        setAlbumArtDataUrl(currentCase.albumArt);
+      } else {
+        convertImageUrlToBase64(currentCase.albumArt).then((dataUrl) => {
+          if (active && dataUrl && dataUrl.startsWith('data:image')) {
+            setAlbumArtDataUrl(dataUrl);
+          } else if (active) {
+            setAlbumArtDataUrl(currentCase.albumArt || null);
+          }
+        }).catch(() => {
+          if (active) setAlbumArtDataUrl(currentCase.albumArt || null);
+        });
+      }
+    } else {
+      setAlbumArtDataUrl(null);
+    }
+    return () => { active = false; };
+  }, [currentCase?.title, currentCase?.artist, currentCase?.albumArt]);
 
   const saveSettings = () => {
     localStorage.setItem("gemini_api_key", tempKey);
@@ -248,9 +376,17 @@ function App() {
       setCurrentCase(report);
       showToast(`AUTOPSY COMPLETE: ${titleInput.toUpperCase()}`);
     } catch (err) {
-      console.error(err);
-      showToast("EXAMINATION ERROR. USING FALLBACK PROTOCOL.");
-      setCurrentCase(generateDeterministicCase(titleInput, artistInput));
+      console.warn("Examine error, loading archive fallback with public metadata:", err);
+      showToast("FILED VIA REGISTRY ARCHIVE");
+      try {
+        const meta = await fetchSpotifyTrackData(titleInput, artistInput, spotifyId, spotifySecret);
+        setCurrentCase({
+          ...generateDeterministicCase(titleInput, artistInput, meta),
+          albumArt: meta?.albumArt
+        });
+      } catch {
+        setCurrentCase(generateDeterministicCase(titleInput, artistInput));
+      }
     } finally {
       setLoading(false);
     }
@@ -299,16 +435,25 @@ function App() {
     if (!targetEl) return;
 
     setIsDownloadingPng(true);
-    showToast("PREPARING ARCHIVAL PNG SNAPSHOT...");
+
+    const clientWidth = targetEl.offsetWidth || 1024;
+    // Guarantee at least 4K resolution (minimum 3840px wide)
+    const target4kWidth = 3840;
+    const computedPixelRatio = Math.max(3, Math.ceil(target4kWidth / clientWidth));
+    const outputWidth = Math.round(clientWidth * computedPixelRatio);
+
+    showToast(`RENDERING 4K ULTRA-HD ARCHIVAL PNG (${outputWidth}px)...`);
 
     try {
-      await new Promise((r) => setTimeout(r, 120));
+      // Give a brief tick to ensure canvas rendering is flushed
+      await new Promise((r) => setTimeout(r, 100));
 
       const dataUrl = await toPng(targetEl, {
-        quality: 0.98,
-        pixelRatio: 2,
+        quality: 1.0,
+        pixelRatio: computedPixelRatio,
         backgroundColor: '#ece8df',
-        cacheBust: true,
+        cacheBust: false,
+        skipFonts: true,
         filter: (node: HTMLElement) => {
           if (node.classList && node.classList.contains('no-export')) {
             return false;
@@ -319,27 +464,29 @@ function App() {
 
       const sanitizedArtist = currentCase.artist.replace(/[^a-zA-Z0-9_-]/g, '_').toUpperCase();
       const sanitizedTitle = currentCase.title.replace(/[^a-zA-Z0-9_-]/g, '_').toUpperCase();
-      const filename = `TRACK_AUTOPSY_${sanitizedArtist}_${sanitizedTitle}_${reportType}.png`;
+      const filename = `TRACK_AUTOPSY_4K_${sanitizedArtist}_${sanitizedTitle}_${reportType}.png`;
 
       const link = document.createElement('a');
       link.download = filename;
       link.href = dataUrl;
       link.click();
-      showToast("REPORT DOWNLOADED AS PNG");
+      showToast("4K ULTRA-HD REPORT DOWNLOADED");
     } catch (err) {
-      console.error("Failed to export high-res PNG, falling back:", err);
+      console.error("Failed to export 4K PNG, trying safe canvas fallback:", err);
       try {
         const fallbackDataUrl = await toPng(targetEl, {
-          quality: 0.9,
+          quality: 0.98,
+          pixelRatio: Math.max(2, Math.ceil(3840 / clientWidth)),
           backgroundColor: '#ece8df',
           skipFonts: true,
+          cacheBust: false,
           filter: (node: HTMLElement) => !node.classList?.contains('no-export'),
         });
         const link = document.createElement('a');
-        link.download = `TRACK_AUTOPSY_REPORT.png`;
+        link.download = `TRACK_AUTOPSY_4K_REPORT.png`;
         link.href = fallbackDataUrl;
         link.click();
-        showToast("REPORT DOWNLOADED AS PNG");
+        showToast("4K REPORT DOWNLOADED AS PNG");
       } catch (fallbackErr) {
         console.error("Fallback PNG export failed:", fallbackErr);
         showToast("PNG EXPORT FAILED - PLEASE RETRY");
@@ -697,11 +844,13 @@ function App() {
                         
                         <div className="pb-space-md mb-space-md flex flex-col md:flex-row md:items-start justify-between gap-space-md">
                           <div className="flex gap-space-md items-start">
-                            {currentCase.albumArt && (
-                              <div className="w-24 h-24 shrink-0 shadow-[2px_2px_0px_#1d1b18] border-2 border-surface-variant p-1 bg-surface-container-lowest rotate-[-2deg]">
-                                <img src={currentCase.albumArt} alt="Album Art" crossOrigin="anonymous" className="w-full h-full object-cover grayscale contrast-125" />
-                              </div>
-                            )}
+                            <div className="w-24 h-24 shrink-0 shadow-[2px_2px_0px_#1d1b18] border-2 border-surface-variant p-1 bg-surface-container-lowest rotate-[-2deg] overflow-hidden">
+                              <AlbumArtCanvas 
+                                albumArt={albumArtDataUrl || currentCase.albumArt}
+                                title={currentCase.title}
+                                artist={currentCase.artist}
+                              />
+                            </div>
                             <div className="space-y-1 max-w-xl">
                               <div className="flex items-center gap-space-xs flex-wrap">
                                 <span className="font-label-sm text-label-sm bg-surface-variant px-1.5 py-0.5 uppercase tracking-widest text-on-surface-variant font-bold">
